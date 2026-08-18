@@ -1,9 +1,11 @@
 package com.aditya.finance_manager.controller;
 
 import com.aditya.finance_manager.dto.CreateExpenseRequest;
+import com.aditya.finance_manager.dto.ExpenseResponse;
 import com.aditya.finance_manager.dto.ModifyExpenseRequest;
 import com.aditya.finance_manager.entity.Expense;
 import com.aditya.finance_manager.service.ExpenseService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +26,9 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public Expense createExpense(@RequestBody CreateExpenseRequest request) {
+    public ExpenseResponse createExpense(
+            @Valid @RequestBody CreateExpenseRequest request
+    ) {
         return expenseService.createExpense(request);
     }
     @DeleteMapping("/{id}")
@@ -32,7 +36,7 @@ public class ExpenseController {
         expenseService.deleteExpense(id);
     }
     @GetMapping("/{id}")
-    public Expense getExpenseById(@PathVariable Long id){
+    public ExpenseResponse getExpenseById(@PathVariable Long id){
         return expenseService.getExpenseById(id);
     }
     @PutMapping("/{id}")
