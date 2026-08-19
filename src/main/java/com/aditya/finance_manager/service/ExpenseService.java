@@ -21,8 +21,13 @@ public class ExpenseService {
         this.expenseMapper = expenseMapper;
     }
 
-    public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+    public List<ExpenseResponse> getAllExpenses() {
+
+        List<Expense> expenses = expenseRepository.findAll();
+
+        return expenses.stream()
+                .map(expenseMapper::toResponse)
+                .toList();
     }
     public ExpenseResponse createExpense(CreateExpenseRequest request) {
 
@@ -45,16 +50,13 @@ public class ExpenseService {
 
         return expenseMapper.toResponse(expense);
     }
-    public Expense modifyExpense(Long id, ModifyExpenseRequest request){
-        if(!expenseRepository.existsById(id)){
-            throw new ExpenseNotFoundException(id);
-        }
-        Expense expense = expenseRepository.getReferenceById(id);
-        expense.setAmount(request.getAmount());
-        expense.setCategory(request.getCategory());
-        expense.setDescription(request.getDescription());
-        expense.setExpenseDate(request.getExpenseDate());
+    public ExpenseResponse modifyExpense(Long id, ModifyExpenseRequest request){
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ExpenseNotFoundException(id));
+        Expense updatedexpense= expenseMapper.toEntity(request,expense);
 
-        return expenseRepository.save(expense);
+        Expense savedExpense = expenseRepository.save(updatedexpense);
+
+        return expenseMapper.toResponse(savedExpense);
 }
 }

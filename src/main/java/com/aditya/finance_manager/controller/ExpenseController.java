@@ -6,6 +6,8 @@ import com.aditya.finance_manager.dto.ModifyExpenseRequest;
 import com.aditya.finance_manager.entity.Expense;
 import com.aditya.finance_manager.service.ExpenseService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,26 +23,32 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public List<Expense> getExpenses() {
+    public List<ExpenseResponse> getExpenses() {
         return expenseService.getAllExpenses();
     }
-
     @PostMapping
-    public ExpenseResponse createExpense(
+    public ResponseEntity<ExpenseResponse> createExpense(
             @Valid @RequestBody CreateExpenseRequest request
     ) {
-        return expenseService.createExpense(request);
+        ExpenseResponse response = expenseService.createExpense(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
     @DeleteMapping("/{id}")
-    public void deleteExpense(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
+
         expenseService.deleteExpense(id);
+
+        return ResponseEntity.noContent().build();
     }
     @GetMapping("/{id}")
     public ExpenseResponse getExpenseById(@PathVariable Long id){
         return expenseService.getExpenseById(id);
     }
     @PutMapping("/{id}")
-    public Expense modifyExpense(@PathVariable Long id, @RequestBody ModifyExpenseRequest request){
+    public ExpenseResponse modifyExpense(@PathVariable Long id, @RequestBody ModifyExpenseRequest request){
         return expenseService.modifyExpense(id, request);
     }
 
