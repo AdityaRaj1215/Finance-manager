@@ -1,12 +1,14 @@
 package com.aditya.finance_manager.dto;
 
+import com.aditya.finance_manager.entity.Category;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ModifyExpenseRequest {
 
     private BigDecimal amount;
-    private String category;
+    private Category category;
     private String description;
     private LocalDate expenseDate;
 
@@ -18,11 +20,11 @@ public class ModifyExpenseRequest {
         this.amount = amount;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
