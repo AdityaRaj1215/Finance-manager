@@ -1,17 +1,24 @@
 package com.aditya.finance_manager.dto;
 
-
-
-import com.aditya.finance_manager.entity.Category;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class CreateExpenseRequest {
 
+    @NotNull
+    @Positive
     private BigDecimal amount;
-    private Category category;
+
+    @NotNull
+    private Long categoryId;
+
     private String description;
+
+    @NotNull
     private LocalDate expenseDate;
 
     public BigDecimal getAmount() {
@@ -22,12 +29,12 @@ public class CreateExpenseRequest {
         this.amount = amount;
     }
 
-    public Category getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getDescription() {

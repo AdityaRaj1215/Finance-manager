@@ -1,6 +1,7 @@
 package com.aditya.finance_manager.dto;
 
 import com.aditya.finance_manager.entity.Category;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,7 +9,8 @@ import java.time.LocalDate;
 public class ModifyExpenseRequest {
 
     private BigDecimal amount;
-    private Category category;
+    @NotNull
+    private Long categoryId;
     private String description;
     private LocalDate expenseDate;
 
@@ -20,12 +22,12 @@ public class ModifyExpenseRequest {
         this.amount = amount;
     }
 
-    public Category getCategory() {
-        return category;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public String getDescription() {
