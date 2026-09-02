@@ -1,5 +1,6 @@
 package com.aditya.finance_manager.controller;
 
+import com.aditya.finance_manager.dto.CategoryResponse;
 import com.aditya.finance_manager.dto.CreateCategoryRequest;
 import com.aditya.finance_manager.entity.Category;
 import com.aditya.finance_manager.service.CategoryService;
@@ -19,7 +20,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category createCategory(
+    public CategoryResponse createCategory(
             @Valid @RequestBody CreateCategoryRequest request
     ) {
         return categoryService.createCategory(request);
