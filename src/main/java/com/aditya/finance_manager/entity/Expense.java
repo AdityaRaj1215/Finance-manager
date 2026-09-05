@@ -14,6 +14,10 @@ public class Expense {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     private BigDecimal amount;
 
     @ManyToOne
@@ -58,5 +62,13 @@ public class Expense {
 
     public void setExpenseDate(LocalDate expenseDate) {
         this.expenseDate = expenseDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
