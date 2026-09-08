@@ -14,6 +14,8 @@ public class CreateExpenseRequest {
     private BigDecimal amount;
 
     @NotNull
+    private Long userId;
+    @NotNull
     private Long categoryId;
 
     private String description;
@@ -51,5 +53,13 @@ public class CreateExpenseRequest {
 
     public void setExpenseDate(LocalDate expenseDate) {
         this.expenseDate = expenseDate;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
