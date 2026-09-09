@@ -9,6 +9,7 @@ import com.aditya.finance_manager.exception.ExpenseNotFoundException;
 import com.aditya.finance_manager.mapper.ExpenseMapper;
 import com.aditya.finance_manager.repository.CategoryRepository;
 import com.aditya.finance_manager.repository.ExpenseRepository;
+import com.aditya.finance_manager.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +20,17 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final ExpenseMapper expenseMapper;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     public ExpenseService(
             ExpenseRepository expenseRepository,
             ExpenseMapper expenseMapper,
-            CategoryRepository categoryRepository
+            CategoryRepository categoryRepository, UserRepository userRepository
     ) {
         this.expenseRepository = expenseRepository;
         this.expenseMapper = expenseMapper;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
     public List<ExpenseResponse> getAllExpenses() {

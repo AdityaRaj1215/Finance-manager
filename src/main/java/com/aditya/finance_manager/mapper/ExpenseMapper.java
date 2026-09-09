@@ -5,17 +5,22 @@ import com.aditya.finance_manager.dto.ExpenseResponse;
 import com.aditya.finance_manager.dto.ModifyExpenseRequest;
 import com.aditya.finance_manager.entity.Category;
 import com.aditya.finance_manager.entity.Expense;
+import com.aditya.finance_manager.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ExpenseMapper {
 
-    public Expense toEntity(CreateExpenseRequest request, Category category) {
-
+    public Expense toEntity(
+            CreateExpenseRequest request,
+            Category category,
+            User user
+    ) {
         Expense expense = new Expense();
 
         expense.setAmount(request.getAmount());
         expense.setCategory(category);
+        expense.setUser(user);
         expense.setDescription(request.getDescription());
         expense.setExpenseDate(request.getExpenseDate());
 
@@ -25,10 +30,12 @@ public class ExpenseMapper {
     public Expense toEntity(
             ModifyExpenseRequest request,
             Expense expense,
-            Category category
+            Category category,
+            User user
     ) {
         expense.setAmount(request.getAmount());
         expense.setCategory(category);
+        expense.setUser(user);
         expense.setDescription(request.getDescription());
         expense.setExpenseDate(request.getExpenseDate());
 
