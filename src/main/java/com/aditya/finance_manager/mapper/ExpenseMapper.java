@@ -42,6 +42,7 @@ public class ExpenseMapper {
         return expense;
     }
     public ExpenseResponse toResponse(Expense expense) {
+
         ExpenseResponse response = new ExpenseResponse();
 
         response.setId(expense.getId());
@@ -49,7 +50,9 @@ public class ExpenseMapper {
         response.setCategory(expense.getCategory());
         response.setDescription(expense.getDescription());
         response.setExpenseDate(expense.getExpenseDate());
-
+        if (expense.getUser() != null) {
+            response.setUserId(expense.getUser().getId());
+        }
         return response;
     }
 }

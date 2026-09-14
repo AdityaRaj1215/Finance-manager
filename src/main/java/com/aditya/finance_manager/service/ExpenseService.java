@@ -4,8 +4,10 @@ import com.aditya.finance_manager.dto.ExpenseResponse;
 import com.aditya.finance_manager.dto.ModifyExpenseRequest;
 import com.aditya.finance_manager.entity.Category;
 import com.aditya.finance_manager.entity.Expense;
+import com.aditya.finance_manager.entity.User;
 import com.aditya.finance_manager.exception.CategoryNotFoundException;
 import com.aditya.finance_manager.exception.ExpenseNotFoundException;
+import com.aditya.finance_manager.exception.UserNotFoundException;
 import com.aditya.finance_manager.mapper.ExpenseMapper;
 import com.aditya.finance_manager.repository.CategoryRepository;
 import com.aditya.finance_manager.repository.ExpenseRepository;
@@ -47,7 +49,15 @@ public class ExpenseService {
                 .orElseThrow(() ->
                         new CategoryNotFoundException(request.getCategoryId()));
 
-        Expense expense = expenseMapper.toEntity(request, category);
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() ->
+                        new UserNotFoundException(request.getUserId()));
+
+        Expense expense = expenseMapper.toEntity(
+                request,
+                category,
+                user
+        );
 
         Expense savedExpense = expenseRepository.save(expense);
 
@@ -78,7 +88,16 @@ public class ExpenseService {
                 .orElseThrow(() ->
                         new CategoryNotFoundException(request.getCategoryId()));
 
-        expenseMapper.toEntity(request, expense, category);
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() ->
+                        new UserNotFoundException(request.getUserId()));
+
+        expenseMapper.toEntity(
+                request,
+                expense,
+                category,
+                user
+        );
 
         Expense savedExpense = expenseRepository.save(expense);
 

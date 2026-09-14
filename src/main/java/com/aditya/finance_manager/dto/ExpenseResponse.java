@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public class ExpenseResponse {
 
     private Long id;
+    private Long userId;
     private BigDecimal amount;
     private Category category;
     private String description;
@@ -52,5 +53,13 @@ public class ExpenseResponse {
 
     public void setExpenseDate(LocalDate expenseDate) {
         this.expenseDate = expenseDate;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }
