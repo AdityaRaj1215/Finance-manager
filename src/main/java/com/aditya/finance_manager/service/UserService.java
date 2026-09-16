@@ -22,7 +22,7 @@ public class UserService {
     ) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordEncoder = passwordEncoder; A
     }
 
     public UserResponse createUser(CreateUserRequest request) {
