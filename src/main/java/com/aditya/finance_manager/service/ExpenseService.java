@@ -27,12 +27,15 @@ public class ExpenseService {
     public ExpenseService(
             ExpenseRepository expenseRepository,
             ExpenseMapper expenseMapper,
-            CategoryRepository categoryRepository, UserRepository userRepository
+            CategoryRepository categoryRepository,
+            UserRepository userRepository,
+            CurrentUserService currentUserService
     ) {
         this.expenseRepository = expenseRepository;
         this.expenseMapper = expenseMapper;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
     }
 
     public List<ExpenseResponse> getAllExpenses() {

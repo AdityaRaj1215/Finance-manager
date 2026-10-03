@@ -30,12 +30,10 @@ public class ExpenseMapper {
     public Expense toEntity(
             ModifyExpenseRequest request,
             Expense expense,
-            Category category,
-            User user
+            Category category
     ) {
         expense.setAmount(request.getAmount());
         expense.setCategory(category);
-        expense.setUser(user);
         expense.setDescription(request.getDescription());
         expense.setExpenseDate(request.getExpenseDate());
 
