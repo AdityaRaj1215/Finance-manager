@@ -23,6 +23,7 @@ public class ExpenseService {
     private final ExpenseMapper expenseMapper;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     public ExpenseService(
             ExpenseRepository expenseRepository,
