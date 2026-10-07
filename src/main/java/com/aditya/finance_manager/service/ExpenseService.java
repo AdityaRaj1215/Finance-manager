@@ -49,19 +49,25 @@ public class ExpenseService {
     }
     public ExpenseResponse createExpense(CreateExpenseRequest request) {
 
+        Long userId = currentUserService.getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() ->
                         new CategoryNotFoundException(request.getCategoryId()));
-
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new UserNotFoundException(request.getUserId()));
 
         Expense expense = expenseMapper.toEntity(
                 request,
                 category,
                 user
         );
+
+        Expense savedExpense = expenseRepository.save(expense);
+
+        return expenseMapper.toResponse(savedExpense);
+    }
 
         Expense savedExpense = expenseRepository.save(expense);
 
