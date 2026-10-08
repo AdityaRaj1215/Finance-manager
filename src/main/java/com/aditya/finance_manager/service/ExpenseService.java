@@ -1,4 +1,5 @@
 package com.aditya.finance_manager.service;
+
 import com.aditya.finance_manager.dto.CreateExpenseRequest;
 import com.aditya.finance_manager.dto.ExpenseResponse;
 import com.aditya.finance_manager.dto.ModifyExpenseRequest;
@@ -41,22 +42,30 @@ public class ExpenseService {
 
     public List<ExpenseResponse> getAllExpenses() {
 
-        List<Expense> expenses = expenseRepository.findAll();
+        Long userId = currentUserService.getCurrentUserId();
+
+        List<Expense> expenses =
+                expenseRepository.findAllByUser_Id(userId);
 
         return expenses.stream()
                 .map(expenseMapper::toResponse)
                 .toList();
     }
+
     public ExpenseResponse createExpense(CreateExpenseRequest request) {
 
         Long userId = currentUserService.getCurrentUserId();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
-
-        Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() ->
-                        new CategoryNotFoundException(request.getCategoryId()));
+                        new UserNotFoundException(userId));
+
+        Category category = categoryRepository.findById(
+                request.getCategoryId()
+        ).orElseThrow(() ->
+                new CategoryNotFoundException(
+                        request.getCategoryId()
+                ));
 
         Expense expense = expenseMapper.toEntity(
                 request,
@@ -69,49 +78,57 @@ public class ExpenseService {
         return expenseMapper.toResponse(savedExpense);
     }
 
-        Expense savedExpense = expenseRepository.save(expense);
-
-        return expenseMapper.toResponse(savedExpense);
-    }
     public void deleteExpense(Long id) {
-        if(!expenseRepository.existsById(id)){
-            throw new ExpenseNotFoundException(id);
-        }
-        expenseRepository.deleteById(id);
+
+        Long userId = currentUserService.getCurrentUserId();
+
+        Expense expense = expenseRepository
+                .findByIdAndUser_Id(id, userId)
+                .orElseThrow(() ->
+                        new ExpenseNotFoundException(id));
+
+        expenseRepository.delete(expense);
     }
+
     public ExpenseResponse getExpenseById(Long id) {
 
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ExpenseNotFoundException(id));
+        Long userId = currentUserService.getCurrentUserId();
+
+        Expense expense = expenseRepository
+                .findByIdAndUser_Id(id, userId)
+                .orElseThrow(() ->
+                        new ExpenseNotFoundException(id));
 
         return expenseMapper.toResponse(expense);
     }
+
     public ExpenseResponse modifyExpense(
             Long id,
             ModifyExpenseRequest request
     ) {
 
-        Expense expense = expenseRepository.findById(id)
-                .orElseThrow(() -> new ExpenseNotFoundException(id));
+        Long userId = currentUserService.getCurrentUserId();
 
-        Category category = categoryRepository.findById(request.getCategoryId())
+        Expense expense = expenseRepository
+                .findByIdAndUser_Id(id, userId)
                 .orElseThrow(() ->
-                        new CategoryNotFoundException(request.getCategoryId()));
+                        new ExpenseNotFoundException(id));
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new UserNotFoundException(request.getUserId()));
+        Category category = categoryRepository.findById(
+                request.getCategoryId()
+        ).orElseThrow(() ->
+                new CategoryNotFoundException(
+                        request.getCategoryId()
+                ));
 
         expenseMapper.toEntity(
                 request,
                 expense,
-                category,
-                user
+                category
         );
 
         Expense savedExpense = expenseRepository.save(expense);
 
         return expenseMapper.toResponse(savedExpense);
     }
-
 }
