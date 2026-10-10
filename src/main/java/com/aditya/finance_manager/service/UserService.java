@@ -9,6 +9,8 @@ import com.aditya.finance_manager.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Service
 public class UserService {
 
@@ -27,12 +29,14 @@ public class UserService {
 
     public UserResponse createUser(CreateUserRequest request) {
 
-        if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
-            throw new UserAlreadyExistsException(request.getEmail());
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new UserAlreadyExistsException(email);
         }
 
         User user = userMapper.toEntity(request);
-
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepository.save(user);

@@ -1,6 +1,5 @@
 package com.aditya.finance_manager.dto;
 
-import com.aditya.finance_manager.entity.Category;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -11,9 +10,6 @@ public class ModifyExpenseRequest {
     private BigDecimal amount;
     @NotNull
     private Long categoryId;
-
-    @NotNull
-    private Long userId;
 
     private String description;
     private LocalDate expenseDate;
@@ -48,13 +44,5 @@ public class ModifyExpenseRequest {
 
     public void setExpenseDate(LocalDate expenseDate) {
         this.expenseDate = expenseDate;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 }

@@ -24,7 +24,7 @@ public class AuthService {
 
         Authentication authentication =
                 UsernamePasswordAuthenticationToken.unauthenticated(
-                        request.getEmail(),
+                        request.getEmail().trim(),
                         request.getPassword()
                 );
 
