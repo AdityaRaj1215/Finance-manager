@@ -32,7 +32,7 @@ public class JwtService {
                         now.plusSeconds(60 * 60)
                 )
                 .claim(
-                        "email",
+                        "email", a
                         userDetails.getUsername()
                 )
                 .build();
