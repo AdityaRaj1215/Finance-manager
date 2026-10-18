@@ -7,6 +7,11 @@ import { Brand } from '../components/Brand'
 
 const numberFormat = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const dateFormat = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+const monthFormat = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' })
+
+function currentMonthValue() {
+  return localDateValue(new Date()).slice(0, 7)
+}
 
 function localDateValue(date: Date) {
   const offset = date.getTimezoneOffset() * 60_000
@@ -124,6 +129,9 @@ export function HomePage() {
   const [showForm, setShowForm] = useState(false)
   const [showCategoryForm, setShowCategoryForm] = useState(false)
   const [actionError, setActionError] = useState('')
+  const [monthFilter, setMonthFilter] = useState(currentMonthValue)
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [search, setSearch] = useState('')
 
   async function refreshExpenses() {
     const items = await getExpenses()
@@ -142,7 +150,25 @@ export function HomePage() {
     return () => { active = false }
   }, [])
 
-  const total = expenses.reduce((sum, expense) => sum + Number(expense.amount), 0)
+  const monthExpenses = expenses.filter((expense) => expense.expenseDate.startsWith(monthFilter))
+  const total = monthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0)
+  const categoryTotals = monthExpenses.reduce<Record<string, { name: string; total: number }>>((result, expense) => {
+    const key = String(expense.category?.id ?? 'uncategorized')
+    const name = expense.category?.name || 'Uncategorized'
+    result[key] = { name, total: (result[key]?.total ?? 0) + Number(expense.amount) }
+    return result
+  }, {})
+  const topCategories = Object.values(categoryTotals).sort((a, b) => b.total - a.total).slice(0, 4)
+  const normalizedSearch = search.trim().toLocaleLowerCase()
+  const visibleExpenses = expenses.filter((expense) => {
+    const matchesCategory = categoryFilter === 'all' || String(expense.category?.id ?? '') === categoryFilter
+    const matchesSearch = !normalizedSearch || `${expense.description ?? ''} ${expense.category?.name ?? ''}`.toLocaleLowerCase().includes(normalizedSearch)
+    return matchesCategory && matchesSearch
+  })
+  const monthLabel = (() => {
+    const date = new Date(`${monthFilter}-01T00:00:00Z`)
+    return Number.isNaN(date.getTime()) ? monthFilter : monthFormat.format(date)
+  })()
 
   async function saveExpense(payload: ExpensePayload) {
     if (editingExpense) {
@@ -202,14 +228,37 @@ export function HomePage() {
 
         <div className="mt-9 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-line bg-white p-5 shadow-sm shadow-ink/[0.03]">
-            <p className="text-sm text-muted">Expenses recorded</p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{loading ? '—' : expenses.length}</p>
+            <label className="block text-sm text-muted" htmlFor="month-filter">Spending in</label>
+            <input id="month-filter" className="mt-2 w-full rounded-lg border border-line bg-white px-3 py-2 text-xl font-semibold text-ink focus:outline-none focus:ring-2 focus:ring-forest/30" type="month" value={monthFilter} onChange={(event) => setMonthFilter(event.target.value)} />
+            <p className="mt-2 text-xs text-muted">{monthLabel}</p>
           </div>
           <div className="rounded-2xl border border-line bg-white p-5 shadow-sm shadow-ink/[0.03]">
-            <p className="text-sm text-muted">Total recorded</p>
+            <p className="text-sm text-muted">{monthLabel} total</p>
             <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{loading ? '—' : numberFormat.format(total)}</p>
+            <p className="mt-2 text-xs text-muted">{monthExpenses.length} {monthExpenses.length === 1 ? 'expense' : 'expenses'} recorded</p>
           </div>
         </div>
+
+        <section className="mt-5 rounded-2xl border border-line bg-white p-5 shadow-sm shadow-ink/[0.03] sm:p-6" aria-labelledby="category-summary-title">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="category-summary-title" className="text-lg font-semibold text-ink">Where it went</h2>
+            <p className="text-sm text-muted">{monthLabel}</p>
+          </div>
+          {loading ? <p className="mt-5 text-sm text-muted" role="status">Updating your summary…</p> : topCategories.length === 0 ? (
+            <p className="mt-5 text-sm text-muted">No expenses recorded for this month yet.</p>
+          ) : (
+            <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {topCategories.map((category) => {
+                const share = total > 0 ? Math.round(category.total / total * 100) : 0
+                return <li key={category.name} className="min-w-0">
+                  <div className="flex items-center justify-between gap-3 text-sm"><span className="truncate font-medium text-ink">{category.name}</span><span className="shrink-0 tabular-nums text-muted">{numberFormat.format(category.total)}</span></div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-mint" role="meter" aria-label={`${category.name} share of monthly spending`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={share}><div className="h-full rounded-full bg-forest" style={{ width: `${share}%` }} /></div>
+                  <p className="mt-1 text-xs text-muted">{share}% of monthly spending</p>
+                </li>
+              })}
+            </ul>
+          )}
+        </section>
 
         <section className="mt-8 overflow-hidden rounded-2xl border border-line bg-white shadow-sm shadow-ink/[0.03]" aria-labelledby="expenses-title">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-7">
@@ -226,6 +275,15 @@ export function HomePage() {
           {showCategoryForm && <CategoryForm onCancel={() => setShowCategoryForm(false)} onSave={saveCategory} />}
           {(showForm || editingExpense) && <ExpenseForm key={editingExpense?.id ?? 'new'} categories={categories} initial={editingExpense ?? undefined} onCancel={cancelForm} onSave={saveExpense} />}
           {actionError && <p className="px-5 pt-4 text-sm text-red-700 sm:px-7" role="alert">{actionError}</p>}
+          <div className="grid gap-3 border-b border-line bg-paper/40 px-5 py-4 sm:grid-cols-[1fr_220px] sm:px-7">
+            <label className="sr-only" htmlFor="expense-search">Search expenses</label>
+            <input id="expense-search" className="field-input" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search descriptions or categories" />
+            <label className="sr-only" htmlFor="category-filter">Filter by category</label>
+            <select id="category-filter" className="field-input" value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
+              <option value="all">All categories</option>
+              {categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}
+            </select>
+          </div>
           {loading ? (
             <p className="px-5 py-10 text-center text-sm text-muted" role="status">Loading your expenses…</p>
           ) : error ? (
@@ -242,9 +300,14 @@ export function HomePage() {
               <p className="font-medium text-ink">No expenses yet</p>
               <p className="mt-2 text-sm text-muted">Add your first expense to start tracking your spending.</p>
             </div>
+          ) : visibleExpenses.length === 0 ? (
+            <div className="px-5 py-10 text-center">
+              <p className="font-medium text-ink">No matching expenses</p>
+              <p className="mt-2 text-sm text-muted">Try another search or category.</p>
+            </div>
           ) : (
             <ul className="divide-y divide-line">
-              {expenses.map((expense) => (
+              {visibleExpenses.map((expense) => (
                 <li key={expense.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
                   <div className="min-w-0">
                     <p className="truncate font-medium text-ink">{expense.description?.trim() || expense.category?.name || 'Expense'}</p>
