@@ -165,6 +165,27 @@ export function HomePage() {
     const matchesSearch = !normalizedSearch || `${expense.description ?? ''} ${expense.category?.name ?? ''}`.toLocaleLowerCase().includes(normalizedSearch)
     return matchesCategory && matchesSearch
   })
+
+  function exportExpenses() {
+    const columns = ['Date', 'Category', 'Description', 'Amount']
+    const rows = visibleExpenses.map((expense) => [
+      expense.expenseDate,
+      expense.category?.name || 'Uncategorized',
+      expense.description?.trim() ?? '',
+      Number(expense.amount).toFixed(2),
+    ])
+    const csv = [columns, ...rows]
+      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(','))
+      .join('\r\n')
+    const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `finance-manager-expenses-${localDateValue(new Date())}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+  }
   const monthLabel = (() => {
     const date = new Date(`${monthFilter}-01T00:00:00Z`)
     return Number.isNaN(date.getTime()) ? monthFilter : monthFormat.format(date)
@@ -267,6 +288,9 @@ export function HomePage() {
               <p className="mt-1 text-sm text-muted">Recorded activity from this account.</p>
             </div>
             <div className="flex items-center gap-4">
+              <button className="text-sm font-semibold text-forest hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:no-underline" onClick={exportExpenses} disabled={visibleExpenses.length === 0}>
+                Export CSV
+              </button>
               <button className="text-sm font-semibold text-forest hover:underline" onClick={() => { setShowCategoryForm((show) => !show); setCategoryNotice('') }}>{showCategoryForm ? 'Cancel category' : 'Add category'}</button>
               {categoryError && <p className="text-sm text-red-700" role="alert">{categoryError}</p>}
             </div>
