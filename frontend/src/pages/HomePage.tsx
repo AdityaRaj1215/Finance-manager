@@ -150,7 +150,9 @@ export function HomePage() {
     return () => { active = false }
   }, [])
 
-  const monthExpenses = expenses.filter((expense) => expense.expenseDate.startsWith(monthFilter))
+  const monthExpenses = monthFilter
+    ? expenses.filter((expense) => expense.expenseDate.startsWith(monthFilter))
+    : expenses
   const total = monthExpenses.reduce((sum, expense) => sum + Number(expense.amount), 0)
   const categoryTotals = monthExpenses.reduce<Record<string, { name: string; total: number }>>((result, expense) => {
     const key = String(expense.category?.id ?? 'uncategorized')
@@ -161,9 +163,10 @@ export function HomePage() {
   const topCategories = Object.values(categoryTotals).sort((a, b) => b.total - a.total).slice(0, 4)
   const normalizedSearch = search.trim().toLocaleLowerCase()
   const visibleExpenses = expenses.filter((expense) => {
+    const matchesMonth = !monthFilter || expense.expenseDate.startsWith(monthFilter)
     const matchesCategory = categoryFilter === 'all' || String(expense.category?.id ?? '') === categoryFilter
     const matchesSearch = !normalizedSearch || `${expense.description ?? ''} ${expense.category?.name ?? ''}`.toLocaleLowerCase().includes(normalizedSearch)
-    return matchesCategory && matchesSearch
+    return matchesMonth && matchesCategory && matchesSearch
   })
 
   function exportExpenses() {
@@ -187,6 +190,7 @@ export function HomePage() {
     URL.revokeObjectURL(url)
   }
   const monthLabel = (() => {
+    if (!monthFilter) return 'All time'
     const date = new Date(`${monthFilter}-01T00:00:00Z`)
     return Number.isNaN(date.getTime()) ? monthFilter : monthFormat.format(date)
   })()
@@ -285,7 +289,7 @@ export function HomePage() {
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-5 sm:px-7">
             <div>
               <h2 id="expenses-title" className="text-lg font-semibold text-ink">Your expenses</h2>
-              <p className="mt-1 text-sm text-muted">Recorded activity from this account.</p>
+              <p className="mt-1 text-sm text-muted">{monthFilter ? `Recorded activity for ${monthLabel}.` : 'Recorded activity from this account.'}</p>
             </div>
             <div className="flex items-center gap-4">
               <button className="text-sm font-semibold text-forest hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:no-underline" onClick={exportExpenses} disabled={visibleExpenses.length === 0}>
