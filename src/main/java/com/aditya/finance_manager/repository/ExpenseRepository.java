@@ -13,4 +13,6 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findAllByUser_Id(Long userId);
 
     Optional<Expense> findByIdAndUser_Id(Long expenseId, Long userId);
+
+    boolean existsByCategory_Id(Long categoryId);
 }

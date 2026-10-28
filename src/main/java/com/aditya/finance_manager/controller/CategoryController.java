@@ -2,9 +2,10 @@ package com.aditya.finance_manager.controller;
 
 import com.aditya.finance_manager.dto.CategoryResponse;
 import com.aditya.finance_manager.dto.CreateCategoryRequest;
-import com.aditya.finance_manager.entity.Category;
 import com.aditya.finance_manager.service.CategoryService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +21,21 @@ public class CategoryController {
     }
 
     @PostMapping
-    public CategoryResponse createCategory(
+    public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CreateCategoryRequest request
     ) {
-        return categoryService.createCategory(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(categoryService.createCategory(request));
     }
 
     @GetMapping
-    public List<Category> getCategories() {
+    public List<CategoryResponse> getCategories() {
         return categoryService.getAllCategories();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
     }
 }

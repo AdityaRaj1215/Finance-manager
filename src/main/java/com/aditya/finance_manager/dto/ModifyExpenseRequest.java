@@ -1,17 +1,23 @@
 package com.aditya.finance_manager.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class ModifyExpenseRequest {
 
+    @NotNull
+    @Positive
     private BigDecimal amount;
     @NotNull
     private Long categoryId;
 
     private String description;
+    @NotNull
+    @PastOrPresent
     private LocalDate expenseDate;
 
     public BigDecimal getAmount() {
