@@ -142,7 +142,7 @@ class AuthFlowTests {
                         .header("Authorization", "Bearer " + firstUserToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Food\"}"))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
         Number categoryIdValue = JsonPath.read(
                 categoryResult.getResponse().getContentAsString(),
